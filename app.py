@@ -1,9 +1,9 @@
 from flask import Flask
-from flask_restplus import Api  # Add this import for Swagger
+from flask_restx import Api
 from config import Config
 from models.db import db
 from flask_migrate import Migrate
-from routes.employee_routes import employee_bp
+from routes.employee_routes import employee_ns
 
 app = Flask(__name__)
 
@@ -17,16 +17,8 @@ app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Register Blueprint for Employee Routes
-app.register_blueprint(employee_bp, url_prefix='/api')
-
-# Function to create and set up the app for testing
-def create_app(config_class=Config):
-    app = Flask(__name__)
-    app.config.from_object(config_class)
-    db.init_app(app)
-    migrate.init_app(app, db)
-    return app
+# Register Namespace for Employee Routes
+api.add_namespace(employee_ns, path='/api/employees')
 
 if __name__ == '__main__':
     app.run(debug=True)

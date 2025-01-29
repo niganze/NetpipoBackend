@@ -1,64 +1,49 @@
-from flask import Blueprint, request, jsonify
-from flask_restplus import Api, Resource, fields
+from flask_restx import Namespace, Resource, fields  # Corrected import
+from flask import request, jsonify
 from models.employee import Employee
 from app import db
 
-employee_bp = Blueprint('employees', __name__)
-api = Api(employee_bp)
+employee_ns = Namespace('employees', description='Employee operations')  # Corrected namespace variable
 
-# Define the Employee Model for Swagger UI
-employee_model = api.model('Employee', {
-    'id': fields.Integer(readOnly=True, description='The employee unique identifier'),
-    'name': fields.String(required=True, description='The employee name'),
-    'email': fields.String(required=True, description='The employee email'),
+employee_model = employee_ns.model('Employee', {
+    'name': fields.String(required=True, description='Employee name'),
+    'email': fields.String(required=True, description='Employee email'),
+    'position': fields.String(required=True, description='Employee position'),
+    'salary': fields.Float(required=True, description='Employee salary')
 })
 
 # Create Employee
-@employee_bp.route('/employees/', methods=['POST'])
-@api.doc(description='Create a new employee')
-@api.expect(employee_model)
-def create_employee():
-    data = request.json
-    new_employee = Employee(**data)
-    db.session.add(new_employee)
-    db.session.commit()
-    return jsonify({"message": "Employee created successfully!"}), 201
+@employee_ns.route('/')
+class EmployeeList(Resource):
+    @employee_ns.expect(employee_model)
+    def post(self):
+        data = request.json
+        new_employee = Employee(**data)
+        db.session.add(new_employee)
+        db.session.commit()
+        return {"message": "Employee created successfully!"}, 201
 
-# List All Employees
-@employee_bp.route('/employees/', methods=['GET'])
-@api.doc(description='Get all employees')
-def get_employees():
-    employees = Employee.query.all()
-    employees_data = [employee.to_dict() for employee in employees]
-    return jsonify(employees_data), 200
+    def get(self):
+        employees = Employee.query.all()
+        return [e.to_dict() for e in employees], 200
 
-# Get Employee by ID
-@employee_bp.route('/employees/<int:id>', methods=['GET'])
-@api.doc(description='Get an employee by ID')
-@api.response(404, 'Employee not found')
-def get_employee(id):
-    employee = Employee.query.get_or_404(id)
-    return jsonify(employee.to_dict()), 200
 
-# Update Employee
-@employee_bp.route('/employees/<int:id>', methods=['PUT'])
-@api.doc(description='Update an existing employee')
-@api.expect(employee_model)
-@api.response(404, 'Employee not found')
-def update_employee(id):
-    data = request.json
-    employee = Employee.query.get_or_404(id)
-    for key, value in data.items():
-        setattr(employee, key, value)
-    db.session.commit()
-    return jsonify({"message": "Employee updated successfully!"}), 200
+@employee_ns.route('/<int:id>')
+class EmployeeResource(Resource):
+    def get(self, id):
+        employee = Employee.query.get_or_404(id)
+        return employee.to_dict(), 200
 
-# Delete Employee
-@employee_bp.route('/employees/<int:id>', methods=['DELETE'])
-@api.doc(description='Delete an employee by ID')
-@api.response(404, 'Employee not found')
-def delete_employee(id):
-    employee = Employee.query.get_or_404(id)
-    db.session.delete(employee)
-    db.session.commit()
-    return jsonify({"message": "Employee deleted successfully!"}), 200
+    def put(self, id):
+        data = request.json
+        employee = Employee.query.get_or_404(id)
+        for key, value in data.items():
+            setattr(employee, key, value)
+        db.session.commit()
+        return {"message": "Employee updated successfully!"}, 200
+
+    def delete(self, id):
+        employee = Employee.query.get_or_404(id)
+        db.session.delete(employee)
+        db.session.commit()
+        return {"message": "Employee deleted successfully!"}, 200
