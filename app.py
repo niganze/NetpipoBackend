@@ -1,3 +1,4 @@
+import sys
 from flask import Flask
 from flask_restx import Api
 from config import Config
@@ -5,6 +6,7 @@ from models.db import db
 from flask_migrate import Migrate
 from routes.employee_routes import employee_ns
 import os
+
 app = Flask(__name__)
 
 # Initialize Swagger
@@ -21,6 +23,8 @@ migrate = Migrate(app, db)
 api.add_namespace(employee_ns, path='/api/employees')
 
 if __name__ == '__main__':
-    # Use dynamic port binding for Render deployment
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    try:
+        port = int(os.environ.get('PORT', 5000))
+        app.run(host='0.0.0.0', port=port, debug=False)
+    except Exception as e:
+        print(f"Error starting the server: {e}", file=sys.stderr)
