@@ -65,7 +65,7 @@ pip install -r requirements.txt
 
 ```bash
 psql -U postgres
-CREATE DATABASE employee_management;
+CREATE DATABASE netpipo_db;
 ```
 
 ### 5. Configure environment variables
@@ -198,6 +198,9 @@ Authorization: Bearer <your-jwt-token>
 └── /README.md                # Project README
 ```
 
+
+## deployed 
+https://netpipobackend-1.onrender.com
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
