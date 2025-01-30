@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: netpipo-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://netpipo_db_user:CnMxWQmq7v2TVLaOW4c8SaBi8wubvCfD@dpg-cudio83tq21c738fes60-a.oregon-postgres.render.com/netpipo_db?sslmode=require
+      - key: SECRET_KEY
+        value: supersecretkey
+      - key: PYTHON_VERSION
+        value: 3.9.0
