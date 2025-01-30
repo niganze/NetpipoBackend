@@ -21,6 +21,6 @@ migrate = Migrate(app, db)
 api.add_namespace(employee_ns, path='/api/employees')
 
 if __name__ == '__main__':
-    # Use dynamic port binding for Render deployment, defaulting to port 5000 locally
-    port = int(os.environ.get('PORT', 5000))
+    # Use dynamic port binding for Render deployment, defaulting to port 5432 locally
+    port = int(os.environ.get('PORT', 5432))
     app.run(host='0.0.0.0', port=port, debug=True)
